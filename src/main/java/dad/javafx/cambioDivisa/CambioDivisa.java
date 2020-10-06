@@ -4,6 +4,8 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
@@ -12,6 +14,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class CambioDivisa extends Application {
+	
+	private Stage primaryStage;
 	
 	private Divisa euro = new Divisa("Euro", 1.0);
 	private Divisa libra = new Divisa("Libra", 0.9);
@@ -27,6 +31,8 @@ public class CambioDivisa extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
+		this.primaryStage = primaryStage;
+		
 		// creamos un cuadro de texto
 		precioOrigen = new TextField();
 		precioOrigen.setPrefColumnCount(4);
@@ -84,12 +90,22 @@ public class CambioDivisa extends Application {
 	}
 
 	private void onCambiarButtonAction(ActionEvent e) {
-		Double cantidadOrigen = Double.parseDouble(precioOrigen.getText());
-		Divisa divisaOrigen = tipomonedaOrigen.getSelectionModel().getSelectedItem();
-		Divisa divisaDestino = tipomonedaDestino.getSelectionModel().getSelectedItem();
-		
-		Double cantidadDestino = divisaDestino.fromEuro(divisaOrigen.toEuro(cantidadOrigen));
-		precioDestino.setText("" + cantidadDestino);
+		try {
+			Double cantidadOrigen = Double.parseDouble(precioOrigen.getText());
+			Divisa divisaOrigen = tipomonedaOrigen.getSelectionModel().getSelectedItem();
+			Divisa divisaDestino = tipomonedaDestino.getSelectionModel().getSelectedItem();
+			
+			Double cantidadDestino = divisaDestino.fromEuro(divisaOrigen.toEuro(cantidadOrigen));
+			precioDestino.setText("" + cantidadDestino);
+		} catch (NumberFormatException execp) {
+			Alert alerta = new Alert(AlertType.ERROR);
+			alerta.initOwner(primaryStage);
+			alerta.setTitle("Error");
+			alerta.setHeaderText("Debe introducir un numero en la cantidad otigen");
+			alerta.setContentText(execp.getMessage());
+			alerta.showAndWait();
+			execp.printStackTrace();
+		}
 	}
 
 	public static void main(String[] args) {
